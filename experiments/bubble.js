@@ -974,15 +974,15 @@ async function initMP() {
     const hands = new Hands({ locateFile: (f) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${f}` });
     hands.setOptions({
       maxNumHands: 2,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
+      modelComplexity: 0,
+      minDetectionConfidence: 0.38,
+      minTrackingConfidence: 0.38,
     });
     const video = document.getElementById('hand-video');
     const cam = new Camera(video, {
       onFrame: async () => { await hands.send({ image: video }); },
-      width: 640,
-      height: 480,
+      width: 480,
+      height: 360,
     });
     await cam.start();
     mpReady = true;
@@ -1015,7 +1015,7 @@ async function initMP() {
 }
 
 function processGestures() {
-  const hands = handData.hands;
+  const hands = performance.now() - (handData.ts || 0) > 720 ? [] : handData.hands;
   const camStatus = document.getElementById('gs-cam');
   const handStatus = document.getElementById('gs-hand');
   if (camStatus) camStatus.textContent = cameraOn ? '已连接' : '未连接';
@@ -1050,7 +1050,7 @@ function processGestures() {
 function handState(hand) {
   const lm = hand.landmarks;
   const pinch = Math.hypot(lm[4].x - lm[8].x, lm[4].y - lm[8].y);
-  if (pinch < 0.038) return 'pinch';
+  if (pinch < 0.04) return 'pinch';
   return 'open';
 }
 
@@ -1102,8 +1102,8 @@ function checkWave(hand) {
   const y = points.reduce((sum, p) => sum + p.y, 0) / points.length;
   const now = performance.now();
   waveSamples.push({ x, y, t: now });
-  while (waveSamples.length && waveSamples[0].t < now - 1050) waveSamples.shift();
-  if (waveSamples.length < 6) return;
+  while (waveSamples.length && waveSamples[0].t < now - 1400) waveSamples.shift();
+  if (waveSamples.length < 4) return;
   let travel = 0;
   let vertical = 0;
   let turns = 0;
@@ -1118,8 +1118,8 @@ function checkWave(hand) {
     if (dir) lastDir = dir;
   }
   const net = Math.abs(waveSamples.at(-1).x - waveSamples[0].x);
-  const horizontalEnough = travel > 0.16 && travel > vertical * 1.25;
-  const backAndForth = turns >= 1 || net < travel * 0.72;
+  const horizontalEnough = travel > 0.11 && travel > vertical * 1.05;
+  const backAndForth = turns >= 1 || net < travel * 0.82;
   if (horizontalEnough && backAndForth) {
     if (document.getElementById('gesture-help')) closeGestureHelp();
     else closeDetail();

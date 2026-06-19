@@ -36,7 +36,6 @@ function init(scene, camera, controls) {
   addText('DATA SOURCES', 11, 0, 32, 'rgba(245,193,108,.78)', 700, '0.30em');
   addText('猫眼专业版 · 灯塔专业版 App · 豆瓣电影', 15, 0, 0, '#f8edda', 700, '0.10em');
   addText('2018-2025 中国电影市场样本 · 剔除年度票房占比低于 0.1% 的影片', 11, 0, -34, 'rgba(247,239,224,.58)', 400, '0.04em');
-  addText('王嘉欣 · 尚小彤', 11, 0, -112, 'rgba(245,193,108,.72)', 500, '0.18em');
 
   camera.position.set(0, 0, 700);
   camera.lookAt(0, 0, 0);
